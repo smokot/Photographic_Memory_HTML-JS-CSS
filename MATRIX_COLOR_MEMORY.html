@@ -1,0 +1,413 @@
+<html>	
+		<style>
+		.table_dark {
+		  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+		  font-size: 14px;
+		  <!---width: 640px; !-->
+		  text-align: left;
+		  
+		  
+			
+		  <!---background: #252F48;!-->
+		  margin: 50px;
+		}
+		
+		.table_dark.two {
+		  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+		  font-size: 14px;
+		  <!---width: 640px; !-->
+		  text-align: left;
+		  
+		 
+		  <!---background: #252F48;!-->
+		  margin: 50px;
+		}
+		
+		.table_dark th {
+		  color: #EDB749;
+		  border-bottom: 1px solid #37B5A5;
+		  padding: 12px 17px;
+		}
+		.table_dark td {
+		 <!--- color: #CAD4D6; !-->
+		  border-bottom: 1px solid #37B5A5;
+		  border-right:1px solid #37B5A5;
+		  border: 5px ridge purple;
+		  padding: 7px 17px;
+		}
+		.table_dark tr:last-child td {
+		  border-bottom: none;
+		}
+		.table_dark td:last-child {
+		  
+		}
+		.table_dark tr:hover td {
+		  text-decoration: underline;
+		}
+		.labels{
+			font-size:20px;
+			font-family:Consolas;
+			border: 3px solid black;
+			width:240px;
+		}
+		</style>
+		<script>		
+		let elements = new Array(); //Все элементы на поле
+		let true_elements = new Array(); //Изначальные(правильные элементы)
+		let colors = ['background-color:red;','background-color:gray;','background-color:blue;','background-color:yellow;','background-color:black;']; //Массив цветов
+		let current_color = 'background-color:red;'; //Текущий выбранный цвет
+		let current_object_color = null;
+		let level = 3; //Текущий уровень матрицы
+		let user_level = 1; // Текущий уровень игрока
+		let true_cells = 0; //Счётчик правильно выбранных цветов
+		let false_cells = 0;//Счётчик неправильно выбранных цветов
+		let array_false_cells = new Array(); // Массив всех ошибок
+		let difficulty = 2; //Счётчик сложности
+		let count_all_true_cells = 0; // Считает ячейки для сравнение со всеми элементами
+		let level_range = 0; // разница, при которой должен переходить переход на новый уровень
+		let line_choice = null;
+		let lives = 3;
+		
+		
+		
+		
+		
+		function focus_palette(item)
+		{
+			if(current_object_color == null){
+				
+				current_object_color = event.target;
+				item.style["border-color"] = "yellow";
+			}
+			else{
+				
+				current_object_color.style["border-color"] = "purple";
+				item.style["border-color"] = "yellow";
+				current_object_color = item;
+			}
+			
+			
+		
+		}
+		
+		
+		function animate_color(item)
+		{
+			let save_color = item.style["background-color"];
+			
+			let red_color ="background-color:red";
+			setTimeout(()=> {
+				item.style=red_color;
+			},100);
+			setTimeout(()=> {
+				item.style=save_color;
+			},200);
+			
+			
+		}
+		
+		
+		
+		
+		
+		
+		function elem_click() // Нажатие на поле, по определённому элементу
+		{
+			event.target.style=current_color; //Заполняем нажатый элемент текущим цветом
+			
+			let id = event.target.id;
+			
+			let compare_elems = 'background-color:'+new String(event.target.style["background-color"]) +';';
+			
+			if(compare_elems == true_elements[id])
+			{
+				event.target.onclick = "";
+				true_cells++;
+				count_all_true_cells++;
+				event.target.innerText = "OK";
+			}
+			else{
+				false_cells++;
+				animate_color(event.target);
+				if(false_cells == 5){
+					
+					lives = lives - 1;
+					
+					
+					
+					
+					if(lives == 0){
+						let take = document.querySelector("table.table_dark");
+						while (take.firstChild) {
+							  take.removeChild(take.firstChild);
+						}	
+						take = document.querySelector("div.table_dark.two");
+						while (take.firstChild) {
+							  take.removeChild(take.firstChild);
+						}	
+						
+							
+							
+						document.querySelector(".status_win").innerText = "Статус: ИГРА ОКОНЧЕНА";
+						array_false_cells.push(false_cells);
+						
+						
+						document.querySelector(".labels.level").innerText = "Максимальный уровень: "+user_level;
+						
+						
+						let centerer = document.createElement("center");
+						centerer.className="centrize";
+						document.body.appendChild(centerer);
+						
+						let tabler = document.createElement("table");
+						tabler.className = "table_dark three";
+						tabler.style = "float:center;";
+						centerer.appendChild(tabler);
+						
+						
+						let repeat = document.createElement("button");
+						repeat.onclick = ()=>{document.location.reload()};
+						repeat.innerText = "RESTART GAME";
+						repeat.style="font-size:40px"; 
+						centerer.appendChild(repeat);
+						
+						
+						
+						for(let i = 1; i < array_false_cells.length+1; i++)
+						{
+
+							let line = document.createElement("td"); //Создаём ячейку
+							line.width = 30;
+							line.height = 50;
+							line.innerText = "Уровень: " + new String(i);
+							
+							tabler.appendChild(line);
+							
+						}
+						
+						let row = document.createElement("tr"); //Создаём ячейку				
+						tabler.appendChild(row);
+						
+						for(let i = 0; i < array_false_cells.length; i++)
+						{
+
+							let line = document.createElement("td"); //Создаём ячейку
+							line.width = 30;
+							line.height = 50;
+							line.innerText = "Ошибок: " + new String(array_false_cells[i]);
+							
+							tabler.appendChild(line);
+							
+						}
+						
+					}
+					
+					else{
+				
+							setTimeout(()=>{
+								let take = document.querySelector("table.table_dark");
+								while (take.firstChild) {
+								  take.removeChild(take.firstChild);
+								}		
+								true_elements = []; //очищем массив начальных элементов
+								elements = []; //Очищаем массив элементов на поле
+								continue_game();
+								count_all_true_cells=0;
+								array_false_cells.push(false_cells);
+								false_cells=0;
+								true_cells=0;
+								
+								document.querySelector("div.status_win").innerText = "Статус: Уровень заново";
+								document.querySelector("div.status_win").style = "margin:50px; font-family:consolas; font-size:20px; color:#ff0000";
+							},100);
+					
+					}
+					
+				}
+			}
+			if(count_all_true_cells==elements.length)
+			{
+				setTimeout(()=>{
+					
+					
+					
+					if(false_cells == 0){
+						document.querySelector("div.status_win").innerText = "Отлично!";
+						document.querySelector("div.status_win").style = "margin:50px; font-family:consolas; font-size:20px; color:#60c720";
+						
+					}
+					if(false_cells == 1){
+						document.querySelector("div.status_win").innerText = "Хорошо";
+						document.querySelector("div.status_win").style = "margin:50px; font-family:consolas; font-size:20px; color:#edb749";
+					}
+					if(false_cells == 2){
+						document.querySelector("div.status_win").innerText = "Нормально";
+						document.querySelector("div.status_win").style = "margin:50px; font-family:consolas; font-size:20px; color:#ff5200";
+					}
+					
+					let take = document.querySelector("table.table_dark");
+					setTimeout(()=>{
+						while (take.firstChild) {
+							  take.removeChild(take.firstChild);
+							}		
+						level_range++;
+						if(level_range % 2 == 0 || level_range % 3 == 0 ){
+							difficulty++; //добавляем сложности
+						}
+						
+						if(level_range % 4 == 0){
+							level++; // Прибавляем уровень
+							difficulty=2; //Сбрасываем сложность на стандартную
+						}
+						
+							true_elements = []; //очищем массив начальных элементов
+							elements = []; //Очищаем массив элементов на поле
+							continue_game();
+							count_all_true_cells=0;
+							array_false_cells.push(false_cells);
+							false_cells=0;
+							true_cells=0;
+							user_level++;
+						},500);
+						
+				},100);
+				
+			}
+			document.querySelector(".labels.level").innerText = "Текущий уровень: "+user_level;
+			document.querySelector(".labels.quantity").innerText = "Попыток: "+lives;
+			
+			document.querySelector(".labels.true").innerText = "Верно выбранных: "+true_cells;
+			
+			document.querySelector(".labels.false").innerText = "Неверно выбранных: "+false_cells;
+			
+	
+		}	
+		function choose_color_click() // Функция выбора цвета
+		{
+			current_color ="background-color:" + new String(event.target.style["background-color"])+";"; //Устанавливаем текущий цвет
+			focus_palette(event.target);
+			
+		}
+/////////////////////////////////////////////////////////		
+		function random_int(max) { // Функция рандомного числа
+		  return Math.floor(Math.random() * max);
+		}
+///////////////////////////////////////////////////////////
+		function add_elems(index) // Добавляет линию элементов в таблицу
+		{
+			let count_id = 0;
+			let table_matrix = document.querySelector(".table_dark"); // ищет нашу таблицу
+			for(let i = 0; i < index; i++)
+			{
+				let row = document.createElement("tr"); //Создаёт следующую строку
+				row.width = 0;
+				row.height = 0;
+				row.className = "element_row";
+				table_matrix.appendChild(row); // Добавляет строку
+				for(let j = 0; j < index; j++)
+				{
+					let line = document.createElement("td"); //Создаём ячейку
+					line.width = 30;
+					line.height = 50;
+					line.id = count_id;
+
+					line.className = "element_line";
+					table_matrix.appendChild(line); // Добавляем ячейку в нашу таблицу
+					elements.push(line); // Пихаем нашу ячейку в массив
+					count_id++;
+				}
+			}
+		}
+		function fill_colors() // Заполняем элементы Рандомными цветами
+		{
+			for(let i = 0; i < elements.length; i++)
+			{
+				let stringer = colors[random_int(difficulty)]; // вытягиваем из массива рандомные цвета
+				
+				elements[i].style=stringer; // задаём цвет элементам 
+				
+				true_elements.push(stringer); // Пихаем в массив которые не будем изменять, для сравнения потом
+			}		
+		}	
+		function show_colors_choice() // Показывает все элементы ЦВЕТОВ
+		{		
+			let line_choice = document.querySelector("div.table_dark.two");
+			for(let i = 0; i < colors.length; i++)
+			{
+				let line = document.createElement("td"); // Создаём ячейку цвета
+				line.width = 50;
+				line.height = 50;
+				line.style=colors[i]; // Задаём цвет ячейке 
+				line.align ="center";
+				line.onclick = choose_color_click; // Нажатие, выбор цвета
+				line_choice.appendChild(line); // Добавляем ячейку
+			}
+		}
+		
+		
+		function empty_colors() // Очищаем все элементы(Белым цветом)
+		{
+			for(let i = 0; i < elements.length; i++)
+			{
+				elements[i].style="background-color:white"; //Красим белым цветом
+				elements[i].onclick = elem_click; // Задаём клик ячейке
+			}
+		}
+		
+		function start()
+		{
+			document.querySelector(".starter").hidden = true; // Скрываем кнопочку старта
+			add_elems(level); // Добавляем элементы на поле
+			fill_colors(); // Заполняем их цветами
+			show_colors_choice(); // Выводе поле выбора цветов
+			document.querySelector(".status_win").innerText = "Статус: Запоминание";
+			setTimeout(()=> {
+				empty_colors(); // После задержки, очищаем элементы
+			},3000);
+		}
+		
+		
+		function continue_game()
+		{
+			
+			
+				document.querySelector(".starter").hidden = true; // Скрываем кнопочку старта
+				add_elems(level); // Добавляем элементы на поле
+				fill_colors(); // Заполняем их цветами
+				document.querySelector(".status_win").style = "margin:50px; font-family:consolas; font-size:20px; color:#8b7f7f";
+				document.querySelector(".status_win").innerText = "Статус: Запоминание";
+				setTimeout(()=> {
+					empty_colors(); // После задержки, очищаем элементы
+				},3000);
+			
+			
+		}
+		
+		
+		</script>
+		
+
+		<body>
+		<center><button class="starter" style="font-size:40px; " onclick=start()>START</button>
+			<div class="stats">
+				<div class="labels level">Текущий уровень: </div>
+				<div class="labels quantity">Попыток: </div>
+				<div class="labels true">Верно выбранных: </div>
+				<div class="labels false">Неверно выбранных: </div>
+				
+			</div>
+			<div class="status_win" style="margin:50px; font-family:consolas; font-size:20px; color:#8b7f7f">Статус: </div>
+			
+			
+			
+			<table class="table_dark" style="margin-top:50px">
+			  
+			</table>
+			
+			<div class="table_dark two" style="margin-top:50px"> 
+			
+			
+			</div>
+			
+		</body>
+</html>
